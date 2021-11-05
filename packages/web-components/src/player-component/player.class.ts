@@ -36,49 +36,51 @@ enum ErrorCode {
 interface IShakaErrorHandlerConfig {
     resetSource: () => Promise<void>;
     autoreconnect?: boolean;
+    networkRetries?: number;
 }
 
 class shakaErrorHandler {
     private _resetSource: () => Promise<void>;
     private _autoreconnect: boolean;
+    private _maxNetworkRetries: number;
 
     private _firstVideoError = 0;
     private _numVideoErrors = 0;
+    private _networkRetries = 0;
 
     public constructor(config: IShakaErrorHandlerConfig) {
         this._resetSource = config.resetSource;
         this._autoreconnect = config.autoreconnect ?? true;
+        this._maxNetworkRetries = config.networkRetries ?? 5;
+    }
+
+    public resetErrorCount() {
+        this._networkRetries = 0;
     }
 
     // This is async, but caller will
     // Porting to widgets, had to change from event: Event to event:any
     // because @types/react declares Event interface which overrides lib.dom.
     public async onShakaError(event: shaka_player.PlayerEvents.ErrorEvent): Promise<boolean> {
-        if (!('type' in event) || !('detail' in event)) {
-            throw new Error('onShakaError: event not recognized! No type or detail: ' + JSON.stringify(event));
-        }
-
-        if (event.type !== 'error') {
-            throw new Error(`onShakaError: event not recognized! Type = ${event.type}!`);
-        }
-
-        const shakaError = event.detail as shaka_player.util.Error;
-        if (!shakaError) {
-            throw new Error('onShakaError: event.detail not provided! ' + `event.type = ${event.type}, ${event}`);
-        }
-
+        const shakaError = event.detail;
         // Log the error
         Logger.error('onShakaError: code', shakaError.code, `, ${shakaError.message}, object: ${shakaError}`);
 
-        if (shakaError.code === ErrorCode.WEBSOCKET_CLOSED) {
-            if (this._autoreconnect) {
-                if (shakaError.severity === shaka.util.Error.Severity.RECOVERABLE) {
-                    event.stopImmediatePropagation(); // Must call BEFORE await or else dispatch loop will keep notifying
-                    await this._resetSource();
-                    return true;
-                }
+        if (
+            shakaError.code === ErrorCode.WEBSOCKET_CLOSED &&
+            this._autoreconnect &&
+            shakaError.severity === shaka.util.Error.Severity.RECOVERABLE
+        ) {
+            if (this._networkRetries++ < this._maxNetworkRetries) {
+                Logger.log('Retrying after a network error', event);
+                event.stopImmediatePropagation(); // Must call BEFORE await or else dispatch loop will keep notifying
+                await this._resetSource();
+                return true;
+            } else {
+                // reset the count and pass the error message to the user.
+                this._networkRetries = 0;
+                return false;
             }
-            return false;
         }
 
         if (shakaError.code === 3016) {
@@ -151,8 +153,6 @@ export class PlayerWrapper {
     private _stallDetectionTimer: number | null = null;
     private _currentDate: Date;
     private _driftCorrectionTimer: number | null = null;
-    private _firstVideoError: number = 0;
-    private _numVideoErrors: number = 0;
     private wallclock_event: shaka_player.PlayerEvents.FakeEvent | undefined;
     private _errorHandler: shakaErrorHandler;
     private datePickerComponent: DatePickerComponent = null;
@@ -185,6 +185,14 @@ export class PlayerWrapper {
         } else {
             // This browser does not have the minimum set of APIs we need.
             throw new WidgetGeneralError(this.resources.PLAYER_BrowserNotSupported);
+        }
+    }
+
+    public static setDebugMode(debugMode: boolean) {
+        if (debugMode) {
+            shaka.log.setLevel(shaka.log.Level.V1);
+        } else {
+            shaka.log.setLevel(shaka.log.Level.INFO);
         }
     }
 
@@ -274,11 +282,9 @@ export class PlayerWrapper {
             // Auto play video
             this.video.play();
         } catch (error: unknown) {
-            if (error instanceof Error) {
-                Logger.log(error.message);
-            } else {
-                throw error;
-            }
+            Logger.log('Failed to load the video', error.toString(), error);
+            this.onErrorEvent({ type: 'error', detail: error } as shaka_player.PlayerEvents.ErrorEvent);
+            throw error;
         }
     }
 
@@ -328,14 +334,15 @@ export class PlayerWrapper {
 
         // Remove timeline
         this.removeTimelineComponent();
-        await this.controls.destroy();
 
         if (this.isLoaded) {
             this.video.pause();
             this.video.src = '';
             await this.player?.unload();
+            await this.controls?.destroy();
+            this.controls = undefined;
+            this.isLoaded = false;
         }
-        this.isLoaded = false;
     }
 
     public async onClickLive(isLive: boolean) {
@@ -386,10 +393,10 @@ export class PlayerWrapper {
     public retryStreaming() {
         if (this.isLive) {
             Logger.log('Reloading live stream...');
-            this.player.load(this.liveStream);
+            this.load(this.liveStream);
         } else {
             Logger.log('Reloading VOD stream...');
-            this.player.load(this.vodStream);
+            this.load(this.vodStream);
         }
     }
 
@@ -451,7 +458,9 @@ export class PlayerWrapper {
 
     private removeTimelineComponent() {
         if (this.timelineComponent) {
-            this.controls.bottomControls_.removeChild(this.timelineComponent);
+            if (this.controls) {
+                this.controls.bottomControls_.removeChild(this.timelineComponent);
+            }
             // eslint-disable-next-line no-undef
             this.timelineComponent.removeEventListener(TimelineEvents.SEGMENT_CHANGE, this.onSegmentChangeListenerRef as EventListener);
             // eslint-disable-next-line no-undef
@@ -597,6 +606,9 @@ export class PlayerWrapper {
         this.player = new shaka.Player(this.video);
 
         this.player.configure({
+            abr: {
+                enabled: false
+            },
             manifest: {
                 defaultPresentationDelay: 6
             },
@@ -689,16 +701,28 @@ export class PlayerWrapper {
         }, stallIntervalMs);
 
         // Install drift correction
-        const driftIntervalMs = 5000;
-        const MAX_LATENCY_WINDOW = 5000;
-        this._driftCorrectionTimer = window.setInterval(() => {
+        const driftIntervalMs = 10000; // in milliseconds
+        const MAX_LATENCY_WINDOW = 3; // in seconds
+        this._driftCorrectionTimer = window.setInterval(async () => {
             const video = this.player.getMediaElement() as HTMLMediaElement;
-            if (this.player.seekRange().end - MAX_LATENCY_WINDOW > video.currentTime && !video.paused && this.isLive) {
-                Logger.log(`Correcting drift, jumping forward ${this.player.seekRange().end - video.currentTime}`);
-                video.currentTime = this.player.seekRange().end;
+            if (video && !video.paused && this.isLive && !this.player.isBuffering()) {
+                const videoBuffered = this.player.getBufferedInfo().video;
+                const videoCurrentTime = video.currentTime; // Lock in the current value
+                const videoBufferedEnd = videoBuffered.length > 0 ? videoBuffered[videoBuffered.length - 1].end : videoCurrentTime - 1;
+                if (videoBufferedEnd - MAX_LATENCY_WINDOW > videoCurrentTime) {
+                    // TODO: To account for the time that elapses during the trickplay portion, we need to add some additional trickplay duration
+                    // in order to get latency as low as possible. The slower the trickplay speed, and the higher the latency, the higher this
+                    // additional value will have to be. For now we use a flat value.
+                    const additionalDur = 2000; // in milliseconds
+                    const delta = videoBufferedEnd - videoCurrentTime;
+                    Logger.log(`Correcting drift, jumping forward ${delta}`);
+                    video.playbackRate = 2;
+                    await new Promise((r) => setTimeout(r, (delta * 1000) / video.playbackRate + additionalDur));
+                    Logger.log('Resetting to 1x playback rate...');
+                    video.playbackRate = 1;
+                }
             }
         }, driftIntervalMs);
-
         // Add bounding box drawer
         const options: ICanvasOptions = {
             height: this.video.clientHeight,
@@ -859,6 +883,7 @@ export class PlayerWrapper {
     }
 
     private onLoadedData() {
+        this._errorHandler.resetErrorCount();
         // If vod mode - start first segment
         if (!this.isLive) {
             Logger.log('onLoadedData: jump to 0, ' + this.getSeekRangeString());
@@ -932,6 +957,7 @@ export class PlayerWrapper {
 
     private async onErrorEvent(event: shaka_player.PlayerEvents.ErrorEvent) {
         this.removeLoading();
+        this.player.unload();
         const errorHandled = await this._errorHandler.onShakaError(event);
         if (!errorHandled && this.errorCallback) {
             Logger.log(`onErrorEvent: ${event.detail} not handled, calling errorCallback.`);
