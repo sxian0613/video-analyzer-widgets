@@ -355,21 +355,6 @@ export class PrevDayButton extends shaka.ui.Element {
     }
 }
 
-export class HoursLabel extends shaka.ui.Element {
-    public constructor(parent: any, controls: any) {
-        super(parent, controls);
-        this.init();
-    }
-
-    private init() {
-        this.button_ = document.createElement('span');
-        this.button_.innerHTML = Localization.dictionary.BUTTONS_CLASS_24Hours;
-        this.button_.classList.add('hours-label');
-        this.parent.appendChild(this.button_);
-        setElementTooltip(this.button_, ControlPanelElementsTooltip.HOURS_LABEL);
-    }
-}
-
 export class DatePicker extends shaka.ui.Element {
     public isDatePicker = true;
     public constructor(parent: any, controls: any) {

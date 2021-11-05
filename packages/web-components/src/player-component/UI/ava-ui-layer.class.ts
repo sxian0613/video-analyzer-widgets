@@ -5,7 +5,6 @@ import { ForwardButton, FullscreenButton, MuteButton, OverflowMenu, PlayButton, 
 import {
     ForwardButtonFactory,
     FullscreenButtonFactory,
-    HoursLabelFactory,
     LiveButtonFactory,
     MuteButtonFactory,
     NextDayButtonFactory,
@@ -206,8 +205,6 @@ export class AVAPlayerUILayer {
             this.prevDayCallBack();
         };
         this.shaka.ui.Controls.registerElement(ControlPanelElements.PREVIOUS_DAY, new PrevDayButtonFactory());
-
-        this.shaka.ui.Controls.registerElement(ControlPanelElements.HOURS_LABEL, new HoursLabelFactory());
 
         MetaDataButtonFactory.BoxCallBack = () => {
             this.toggleBox();

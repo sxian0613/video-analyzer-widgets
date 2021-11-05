@@ -1,4 +1,4 @@
-import { HoursLabel, LiveButton, NextDayButton, NextSegment, PrevDayButton, PrevSegment, MetaDataButton, DatePicker, TimeStamp } from './ui.class';
+import { LiveButton, NextDayButton, NextSegment, PrevDayButton, PrevSegment, MetaDataButton, DatePicker, TimeStamp } from './ui.class';
 import { shaka } from '../index';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -58,12 +58,6 @@ export class PrevDayButtonFactory {
     public static callBack: () => void;
     public create(rootElement: any, controls: any) {
         return new PrevDayButton(rootElement, controls, PrevDayButtonFactory.callBack);
-    }
-}
-
-export class HoursLabelFactory {
-    public create(rootElement: any, controls: any) {
-        return new HoursLabel(rootElement, controls);
     }
 }
 
