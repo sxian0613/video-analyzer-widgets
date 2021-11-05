@@ -9,18 +9,6 @@ export class PlayButtonFactory {
     }
 }
 
-export class ForwardButtonFactory {
-    public create(rootElement: any, controls: any) {
-        return new shaka.ui.FastForwardButton(rootElement, controls);
-    }
-}
-
-export class RewindButtonFactory {
-    public create(rootElement: any, controls: any) {
-        return new shaka.ui.RewindButton(rootElement, controls);
-    }
-}
-
 export class FullscreenButtonFactory {
     public create(rootElement: any, controls: any) {
         return new shaka.ui.FullscreenButton(rootElement, controls);

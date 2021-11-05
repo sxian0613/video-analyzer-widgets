@@ -2,7 +2,6 @@ import { setElementTooltip } from '../../../../common/utils/elements';
 import {
     ARROW_LEFT_PATH,
     ARROW_RIGHT_PATH,
-    FORWARD_SVG_PATH,
     FULL_OFF_PATH,
     FULL_PATH,
     METADATA_BUTTON_PATH,
@@ -10,7 +9,6 @@ import {
     MUTE_PATH,
     ON_PATH,
     OVERFLOW_MENU_PATH,
-    REWIND_SVG_PATH,
     SKIP_NEXT_PATH,
     SKIP_PREV_PATH
 } from '../../../../styles/svg/svg.shapes';
@@ -50,42 +48,6 @@ export class PlayButton extends shaka.ui.PlayButton {
         this.button.appendChild(this.svg);
         this.updateIcon();
         setElementTooltip(this.button, ControlPanelElementsTooltip.PLAY);
-    }
-}
-
-export class ForwardButton extends shaka.ui.FastForwardButton {
-    public constructor(parent: any, controls: any) {
-        super(parent, controls);
-        this.init();
-    }
-
-    private init() {
-        this.svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        this.path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        this.path.setAttribute('fill', 'black');
-        this.path.setAttribute('d', FORWARD_SVG_PATH);
-        this.svg.appendChild(this.path);
-        this.button_.innerText = '';
-        this.button_.appendChild(this.svg);
-        setElementTooltip(this.button_, ControlPanelElementsTooltip.FAST_FORWARD);
-    }
-}
-
-export class RewindButton extends shaka.ui.RewindButton {
-    public constructor(parent: any, controls: any) {
-        super(parent, controls);
-        this.init();
-    }
-
-    private init() {
-        this.svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        this.path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        this.path.setAttribute('fill', 'black');
-        this.path.setAttribute('d', REWIND_SVG_PATH);
-        this.svg.appendChild(this.path);
-        this.button_.innerText = '';
-        this.button_.appendChild(this.svg);
-        setElementTooltip(this.button_, ControlPanelElementsTooltip.REWIND);
     }
 }
 

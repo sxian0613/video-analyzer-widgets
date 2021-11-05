@@ -1,9 +1,8 @@
 import { TimelineComponent } from '../../timeline';
 import { ControlPanelElements } from '../player-component.definitions';
 import { ISeekBarElement } from './definitions';
-import { ForwardButton, FullscreenButton, MuteButton, OverflowMenu, PlayButton, RewindButton, SeekBarDecorator } from './ui.class';
+import { FullscreenButton, MuteButton, OverflowMenu, PlayButton, SeekBarDecorator } from './ui.class';
 import {
-    ForwardButtonFactory,
     FullscreenButtonFactory,
     LiveButtonFactory,
     MuteButtonFactory,
@@ -13,7 +12,6 @@ import {
     PlayButtonFactory,
     PrevDayButtonFactory,
     PrevSegmentButtonFactory,
-    RewindButtonFactory,
     MetaDataButtonFactory,
     DatePickerFactory,
     TimeStampFactory
@@ -127,8 +125,7 @@ export class AVAPlayerUILayer {
             if (
                 !hasMiddleSpacer &&
                 (iterator === ControlPanelElements.PREVIOUS_DAY ||
-                    iterator === ControlPanelElements.NEXT_DAY ||
-                    iterator === ControlPanelElements.HOURS_LABEL)
+                    iterator === ControlPanelElements.NEXT_DAY)
             ) {
                 newControlPanelElements.push(ControlPanelElements.SPACER);
                 hasMiddleSpacer = true;
@@ -154,14 +151,6 @@ export class AVAPlayerUILayer {
         this.shaka.ui.PlayButton = PlayButton;
         this.shaka.ui.PlayButton.Factory = PlayButtonFactory;
         this.shaka.ui.Controls.registerElement(ControlPanelElements.PLAY_PAUSE, new this.shaka.ui.PlayButton.Factory());
-
-        this.shaka.ui.FastForwardButton = ForwardButton;
-        this.shaka.ui.FastForwardButton.Factory = ForwardButtonFactory;
-        this.shaka.ui.Controls.registerElement(ControlPanelElements.FAST_FORWARD, new this.shaka.ui.FastForwardButton.Factory());
-
-        this.shaka.ui.RewindButton = RewindButton;
-        this.shaka.ui.RewindButton.Factory = RewindButtonFactory;
-        this.shaka.ui.Controls.registerElement(ControlPanelElements.REWIND, new this.shaka.ui.RewindButton.Factory());
 
         this.shaka.ui.FullscreenButton = FullscreenButton;
         this.shaka.ui.FullscreenButton.Factory = FullscreenButtonFactory;

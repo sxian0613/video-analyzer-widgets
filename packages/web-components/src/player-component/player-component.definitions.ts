@@ -13,9 +13,7 @@ export interface ISource {
 }
 
 export enum ControlPanelElements {
-    REWIND = 'rewind',
     PLAY_PAUSE = 'play_pause',
-    FAST_FORWARD = 'fast_forward',
     LIVE = 'live',
     MUTE = 'mute',
     VOLUME = 'volume',
@@ -25,7 +23,6 @@ export enum ControlPanelElements {
     FULLSCREEN = 'fullscreen',
     NEXT_DAY = 'next_day',
     PREVIOUS_DAY = 'previous_day',
-    HOURS_LABEL = 'hours_label',
     NEXT_SEGMENT = 'next_segment',
     PREV_SEGMENT = 'prev_segment',
     DATE_PICKER = 'date_picker',
@@ -42,10 +39,8 @@ export enum LiveState {
 }
 
 export const ControlPanelElementsTooltip = {
-    REWIND: 'Rewind',
     PLAY: 'Play',
     PAUSE: 'Pause',
-    FAST_FORWARD: 'Fast forward',
     LIVE: 'Live',
     MUTE: 'Mute',
     UNMUTE: 'Unmute',
