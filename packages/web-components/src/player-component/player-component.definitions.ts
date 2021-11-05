@@ -59,5 +59,7 @@ export const ControlPanelElementsTooltip = {
     EXIT_FULLSCREEN: 'Exit fullscreen',
     NEXT_DAY: 'Next day',
     PREVIOUS_DAY: 'Previous day',
-    HOURS_LABEL: 'Hours'
+    HOURS_LABEL: 'Hours',
+    DATE_PICKER: 'Date picker',
+    TIMESTAMP: 'Timestamp'
 };

@@ -15,7 +15,9 @@ import {
     PrevDayButtonFactory,
     PrevSegmentButtonFactory,
     RewindButtonFactory,
-    MetaDataButtonFactory
+    MetaDataButtonFactory,
+    DatePickerFactory,
+    TimeStampFactory
 } from './ui.factory';
 
 /**
@@ -26,16 +28,15 @@ export class AVAPlayerUILayer {
     private _uiConfiguration = {
         controlPanelElements: [
             ControlPanelElements.PREV_SEGMENT,
-            ControlPanelElements.REWIND,
             ControlPanelElements.PLAY_PAUSE,
-            ControlPanelElements.FAST_FORWARD,
             ControlPanelElements.NEXT_SEGMENT,
             ControlPanelElements.LIVE,
             ControlPanelElements.MUTE,
             ControlPanelElements.VOLUME,
             ControlPanelElements.PREVIOUS_DAY,
+            ControlPanelElements.DATE_PICKER,
+            ControlPanelElements.TIMESTAMP,
             ControlPanelElements.NEXT_DAY,
-            ControlPanelElements.HOURS_LABEL,
             ControlPanelElements.Time_And_Duration,
             ControlPanelElements.META_DATA,
             ControlPanelElements.OVERFLOW_MENU,
@@ -107,6 +108,10 @@ export class AVAPlayerUILayer {
             const index = this.allowedControllers.indexOf(iterator);
 
             if (index > -1) {
+                newControlPanelElements.push(iterator);
+            }
+
+            if (index <= -1 && iterator === ControlPanelElements.DATE_PICKER) {
                 newControlPanelElements.push(iterator);
             }
         }
@@ -214,6 +219,10 @@ export class AVAPlayerUILayer {
             this.toggleTracking();
         };
         this.shaka.ui.Controls.registerElement(ControlPanelElements.META_DATA, new MetaDataButtonFactory());
+
+        this.shaka.ui.Controls.registerElement(ControlPanelElements.DATE_PICKER, new DatePickerFactory());
+
+        this.shaka.ui.Controls.registerElement(ControlPanelElements.TIMESTAMP, new TimeStampFactory());
     }
 
     private createButton() {

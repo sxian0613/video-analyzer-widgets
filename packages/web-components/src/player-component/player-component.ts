@@ -102,18 +102,15 @@ export class PlayerComponent extends FASTElement {
 
         this.resources = Localization.dictionary;
         Localization.translate(ControlPanelElementsTooltip, 'PLAYER_Tooltip_');
-        this.datePickerComponent.initLocalization();
 
         if (allowedControllers) {
             this.showCameraName = allowedControllers.indexOf(ControlPanelElements.CAMERA_NAME) > -1;
             this.showDatePicker = allowedControllers.indexOf(ControlPanelElements.DATE_PICKER) > -1;
             this.showTimestamp = allowedControllers.indexOf(ControlPanelElements.TIMESTAMP) > -1;
             this.showTimeline = allowedControllers.indexOf(ControlPanelElements.TIMELINE) > -1;
-            this.showUpperBounding = this.showCameraName || this.showDatePicker || this.showTimestamp;
+            this.showUpperBounding = this.showCameraName;
             this.showBottomControls =
-                allowedControllers.indexOf(ControlPanelElements.REWIND) > -1 ||
                 allowedControllers.indexOf(ControlPanelElements.PLAY_PAUSE) > -1 ||
-                allowedControllers.indexOf(ControlPanelElements.FAST_FORWARD) > -1 ||
                 allowedControllers.indexOf(ControlPanelElements.LIVE) > -1 ||
                 allowedControllers.indexOf(ControlPanelElements.MUTE) > -1 ||
                 allowedControllers.indexOf(ControlPanelElements.VOLUME) > -1 ||
@@ -122,17 +119,19 @@ export class PlayerComponent extends FASTElement {
                 allowedControllers.indexOf(ControlPanelElements.FULLSCREEN) > -1 ||
                 allowedControllers.indexOf(ControlPanelElements.NEXT_DAY) > -1 ||
                 allowedControllers.indexOf(ControlPanelElements.PREVIOUS_DAY) > -1 ||
-                allowedControllers.indexOf(ControlPanelElements.HOURS_LABEL) > -1 ||
                 allowedControllers.indexOf(ControlPanelElements.NEXT_SEGMENT) > -1 ||
-                allowedControllers.indexOf(ControlPanelElements.PREV_SEGMENT) > -1;
+                allowedControllers.indexOf(ControlPanelElements.PREV_SEGMENT) > -1 ||
+                allowedControllers.indexOf(ControlPanelElements.DATE_PICKER) > -1 ||
+                allowedControllers.indexOf(ControlPanelElements.TIMESTAMP) > -1;
         }
 
+        this.updateClass('hide-date-picker', !this.showDatePicker);
         this.updateClass('timeline-on', this.showTimeline);
         this.updateClass('timeline-off', !this.showTimeline);
         this.updateClass('upper-bounding-on', this.showUpperBounding);
         this.updateClass('upper-bounding-off', !this.showUpperBounding);
         this.updateClass('bottom-controls-on', this.showBottomControls);
-        this.updateClass('bottom-controls-of', !this.showBottomControls);
+        this.updateClass('bottom-controls-off', !this.showBottomControls);
 
         this.isMuted = isMuted ?? true;
 
@@ -159,6 +158,8 @@ export class PlayerComponent extends FASTElement {
             this.clickLiveCallBack.bind(this),
             this.updateClass.bind(this)
         );
+
+        this.initDatePicker();
 
         this.player.addLoading();
 
@@ -324,13 +325,12 @@ export class PlayerComponent extends FASTElement {
             return;
         }
 
-        this.initDatePicker();
-
         document.addEventListener('fullscreenchange', this.updateFullScreen.bind(this));
     }
 
     public initDatePicker() {
-        this.datePickerComponent = this.shadowRoot?.querySelector('media-date-picker');
+        this.datePickerComponent = this.player.datePicker;
+        this.datePickerComponent.initLocalization();
 
         this.datePickerComponent.addEventListener(DatePickerEvent.DATE_CHANGE, ((event: CustomEvent<Date>) => {
             if (this.afterInit && event.detail?.toUTCString() !== this.currentDate?.toUTCString()) {
@@ -763,8 +763,8 @@ export class PlayerComponent extends FASTElement {
         }
 
         this.time = timeString;
+        this.player.updateTimeStamp(this.time);
         this.$emit(PlayerEvents.CLOCK_TIME_UPDATED, time);
-        this.timeContainer.innerText = this.time;
     }
 
     private updateClass(className: string, condition: boolean) {

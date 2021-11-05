@@ -22,6 +22,8 @@
     "PLAYER_Tooltip_UNMUTE": "Dempen opheffen",
     "PLAYER_Tooltip_VOLUME": "Volume",
     "PLAYER_Tooltip_SPACER": "Spacer",
+    "PLAYER_Tooltip_DATE_PICKER": "Datumsauswahl",
+    "PLAYER_Tooltip_TIMESTAMP": "Zeitstempel",
     "PLAYER_Tooltip_META_DATA_LAYER_ON": "Schakel objectmetadata-overlay in",
     "PLAYER_Tooltip_META_DATA_LAYER_OFF": "Schakel objectmetadata-overlay uit",
     "PLAYER_Tooltip_OVERFLOW_MENU": "Meer opties",

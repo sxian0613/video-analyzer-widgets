@@ -22,6 +22,8 @@
     "PLAYER_Tooltip_UNMUTE": "Unmute",
     "PLAYER_Tooltip_VOLUME": "Volume",
     "PLAYER_Tooltip_SPACER": "Spacer",
+    "PLAYER_Tooltip_DATE_PICKER": "Date picker",
+    "PLAYER_Tooltip_TIMESTAMP": "Timestamp",
     "PLAYER_Tooltip_META_DATA_LAYER_ON": "Turn on object metadata overlay",
     "PLAYER_Tooltip_META_DATA_LAYER_OFF": "Turn off object metadata overlay",
     "PLAYER_Tooltip_OVERFLOW_MENU": "More options",

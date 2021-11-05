@@ -19,6 +19,7 @@ import { Localization } from './../../../common/services/localization/localizati
 import { IDictionary } from '../../../common/services/localization/localization.definitions';
 import { MediaApi } from '../../../common/services/media/media-api.class';
 import { MimeType } from './player-component.definitions';
+import { DatePickerComponent } from '../date-picker';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 TimelineComponent;
@@ -154,6 +155,8 @@ export class PlayerWrapper {
     private _numVideoErrors: number = 0;
     private wallclock_event: shaka_player.PlayerEvents.FakeEvent | undefined;
     private _errorHandler: shakaErrorHandler;
+    private datePickerComponent: DatePickerComponent = null;
+    private timeStampComponent: HTMLSpanElement = null;
 
     private readonly OFFSET_MULTIPLAYER = 1000;
     private readonly SECONDS_IN_HOUR = 3600;
@@ -409,6 +412,28 @@ export class PlayerWrapper {
                 element.disableButton(disable);
             }
         }
+    }
+
+    public get datePicker() {
+        if (!this.datePickerComponent) {
+            for (const element of this.controls?.elements_) {
+                if (element?.isDatePicker) {
+                    this.datePickerComponent = element.getDatePicker();
+                }
+            }
+        }
+        return this.datePickerComponent;
+    }
+
+    public updateTimeStamp(time: string) {
+        if (!this.timeStampComponent) {
+            for (const element of this.controls?.elements_) {
+                if (element?.isTimeStamp) {
+                    this.timeStampComponent = element.getTimeStamp();
+                }
+            }
+        }
+        this.timeStampComponent.innerText = time;
     }
 
     private updateLiveButtonState() {

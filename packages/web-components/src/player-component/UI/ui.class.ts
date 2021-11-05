@@ -370,6 +370,43 @@ export class HoursLabel extends shaka.ui.Element {
     }
 }
 
+export class DatePicker extends shaka.ui.Element {
+    public isDatePicker = true;
+    public constructor(parent: any, controls: any) {
+        super(parent, controls);
+        this.init();
+    }
+
+    private init() {
+        this.button_ = document.createElement('media-date-picker');
+        this.button_.classList.add('date-picker');
+        this.parent.appendChild(this.button_);
+        setElementTooltip(this.button_, ControlPanelElementsTooltip.DATE_PICKER);
+    }
+    public getDatePicker() {
+        return this.button_;
+    }
+}
+
+export class TimeStamp extends shaka.ui.Element { //CurrentTime
+    public isTimeStamp = true;
+    public constructor(parent: any, controls: any) {
+        super(parent, controls);
+        this.init();
+    }
+
+    private init() {
+        this.button_ = document.createElement('span');
+        this.button_.innerText = '';
+        this.button_.classList.add('timestamp');
+        this.parent.appendChild(this.button_);
+        setElementTooltip(this.button_, ControlPanelElementsTooltip.TIMESTAMP);
+    }
+    public getTimeStamp() {
+        return this.button_;
+    }
+}
+
 export class BodyTracking extends shaka.ui.Element {
     private isOn = false;
 

@@ -44,7 +44,8 @@ export const styles = css`
     }
 
     .ms-DatePicker-holder {
-        top: 9px;
+        left: -200px;
+        top: -300px;
     }
 
     .ms-Icon {

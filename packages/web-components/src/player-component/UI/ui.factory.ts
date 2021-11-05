@@ -1,4 +1,4 @@
-import { HoursLabel, LiveButton, NextDayButton, NextSegment, PrevDayButton, PrevSegment, MetaDataButton } from './ui.class';
+import { HoursLabel, LiveButton, NextDayButton, NextSegment, PrevDayButton, PrevSegment, MetaDataButton, DatePicker, TimeStamp } from './ui.class';
 import { shaka } from '../index';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -93,5 +93,17 @@ export class MetaDataButtonFactory {
             MetaDataButtonFactory.AttributesCallBack,
             MetaDataButtonFactory.TrackingCallBack
         );
+    }
+}
+
+export class DatePickerFactory {
+    public create(rootElement: any, controls: any) {
+        return new DatePicker(rootElement, controls);
+    }
+}
+
+export class TimeStampFactory {
+    public create(rootElement: any, controls: any) {
+        return new TimeStamp(rootElement, controls);
     }
 }

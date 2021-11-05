@@ -110,7 +110,7 @@ export const stylesShaka = css`
         flex-direction: row;
         justify-content: flex-end;
         align-items: center;
-        overflow: hidden;
+        overflow: inherit;
         min-width: 48px;
         font-size: 12px;
         font-weight: 400;

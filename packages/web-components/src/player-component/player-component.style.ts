@@ -238,9 +238,13 @@ export const styles = css`
     }
 
     .prev-day-button,
-    .next-day-button {
-        border: 1px solid var(--secondary-stroke);
-        border-radius: 2px;
+    .next-day-button,
+    .date-picker {
+        margin: 0px 2px;
+    }
+
+    .timestamp {
+        margin: 0px 2px;
     }
 
     .hours-label {
@@ -306,6 +310,14 @@ export const styles = css`
     }
 
     :host(.no-archive) .date-picker {
+        display: none;
+    }
+
+    :host(.no-archive) .timestamp {
+        display: none;
+    }
+
+    :host(.hide-date-picker) .date-picker {
         display: none;
     }
 
